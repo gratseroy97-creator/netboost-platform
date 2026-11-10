@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="theme-color" content="#07111f">
+
+<meta name="description"
+content="NetBoost - Internet speed testing and network monitoring platform.">
+
+<title>NetBoost | Internet Monitor</title>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #07111f;
+    color: white;
+    min-height: 100vh;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 6%;
+    border-bottom: 1px solid #1d3045;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+    color: #21d4fd;
+}
+
+.status {
+    color: #00e59b;
+    font-size: 13px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 30px 20px;
+}
+
+.welcome {
+    margin-bottom: 30px;
+}
+
+.welcome h1 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: #91a4b9;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: #101f32;
+    border: 1px solid #233b55;
+    border-radius: 15px;
+    padding: 22px;
+}
+
+.card h3 {
+    color: #91a4b9;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.value {
+    font-size: 30px;
+    font-weight: bold;
+    color: #21d4fd;
+}
+
+.unit {
+    color: #91a4b9;
+    font-size: 13px;
+}
+
+.test-box {
+    text-align: center;
+    padding: 35px 20px;
+    background: #101f32;
+    border: 1px solid #233b55;
+    border-radius: 18px;
+    margin-bottom: 25px;
+}
+
+.test-box h2 {
+    margin-bottom: 12px;
+}
+
+.test-box p {
+    color: #91a4b9;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+button {
+    background: linear-gradient(90deg, #21d4fd, #00e59b);
+    border: none;
+    border-radius: 30px;
+    padding: 15px 35px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #07111f;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.section {
+    background: #101f32;
+    padding: 22px;
+    border-radius: 15px;
+    border: 1px solid #233b55;
+    margin-bottom: 20px;
+}
+
+.section h2 {
+    margin-bottom: 15px;
+    font-size: 19px;
+}
+
+.section p {
+    color: #91a4b9;
+    line-height: 1.8;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #71869c;
+    font-size: 12px;
+}
+
+@media(max-width: 650px) {
+
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome h1 {
+        font-size: 24px;
+    }
+
+    header {
+        padding: 18px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">NETBOOST ⚡</div>
+
+    <div class="status">● Platform Online</div>
+
+</header>
+
+<main class="container">
+
+    <div class="welcome">
+
+        <h1>Internet Performance Dashboard</h1>
+
+        <p>
+        Monitor your internet connection and track network performance.
+        </p>
+
+    </div>
+
+    <div class="dashboard">
+
+        <div class="card">
+
+            <h3>DOWNLOAD SPEED</h3>
+
+            <div class="value" id="download">--</div>
+
+            <div class="unit">Mbps</div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>UPLOAD SPEED</h3>
+
+            <div class="value" id="upload">--</div>
+
+            <div class="unit">Mbps</div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>LATENCY / PING</h3>
+
+            <div class="value" id="ping">--</div>
+
+            <div class="unit">ms</div>
+
+        </div>
+
+    </div>
+
+    <div class="test-box">
+
+        <h2>Internet Speed Test</h2>
+
+        <p id="testStatus">
+        Ready to measure your internet connection.
+        </p>
+
+        <button id="testButton" onclick="startTest()">
+            START SPEED TEST
+        </button>
+
+    </div>
+
+    <div class="section">
+
+        <h2>📡 Network Information</h2>
+
+        <p id="network">
+        Network information will appear here.
+        </p>
+
+    </div>
+
+    <div class="section">
+
+        <h2>📊 Internet Plan Monitor</h2>
+
+        <p>
+        Compare your actual internet speed with your subscribed plan.
+        </p>
+
+        <p style="margin-top:10px">
+        Performance threshold: 80% of subscribed speed.
+        </p>
+
+    </div>
+
+    <div class="section">
+
+        <h2>📈 Speed History</h2>
+
+        <p id="history">
+        Your speed test history will appear here.
+        </p>
+
+    </div>
+
+</main>
+
+<footer>
+
+    NETBOOST © 2026
+
+    <br><br>
+
+    Internet Performance Monitoring Platform
+
+</footer>
+
+<script>
+
+function startTest() {
+
+    const button = document.getElementById("testButton");
+
+    const status = document.getElementById("testStatus");
+
+    button.disabled = true;
+
+    status.textContent =
+    "Speed testing engine is being prepared for the next development stage.";
+
+    setTimeout(() => {
+
+        button.disabled = false;
+
+        status.textContent =
+        "Dashboard ready. Real speed testing will be activated in the next stage.";
+
+    }, 1500);
+
+}
+
+const connection =
+navigator.connection ||
+navigator.mozConnection ||
+navigator.webkitConnection;
+
+if (connection) {
+
+    document.getElementById("network").textContent =
+    "Connection type: " +
+    (connection.type || "Not provided") +
+    " | Effective type: " +
+    (connection.effectiveType || "Unknown");
+
+} else {
+
+    document.getElementById("network").textContent =
+    "Your browser does not expose detailed network information. " +
+    "Wi-Fi and mobile network detection may be limited.";
+
+}
+
+</script>
+
+</body>
+</html>
