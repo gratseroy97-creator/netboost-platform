@@ -246,14 +246,25 @@ footer {
 
     <div class="section">
 
-        <h2>📡 Network Information</h2>
+    <h2>📡 Network Recognition</h2>
 
-        <p id="network">
-        Network information will appear here.
-        </p>
+    <p id="network">
+        Waiting for network information...
+    </p>
 
-    </div>
+    <br>
 
+    <button onclick="checkNetwork()">
+        CHECK MY NETWORK
+    </button>
+
+    <br><br>
+
+    <p id="provider">
+        Internet provider: Not identified
+    </p>
+
+</div>
     <div class="section">
 
         <h2>📊 Internet Plan Monitor</h2>
@@ -412,7 +423,53 @@ window.startTest = async function() {
                 "netboost_history",
                 JSON.stringify(history)
             );
+window.checkNetwork = function() {
 
+    const connection =
+        navigator.connection ||
+        navigator.mozConnection ||
+        navigator.webkitConnection;
+
+    const network = document.getElementById("network");
+
+    const provider = document.getElementById("provider");
+
+    if (!connection) {
+
+        network.textContent =
+            "Your browser does not support detailed network information.";
+
+        provider.textContent =
+            "Provider identification requires additional network lookup.";
+
+        return;
+
+    }
+
+    const type = connection.type || "Not available";
+
+    const effective = connection.effectiveType || "Unknown";
+
+    const downlink = connection.downlink || "Unknown";
+
+    const rtt = connection.rtt || "Unknown";
+
+    network.innerHTML = `
+
+        Connection type: ${type}<br>
+
+        Effective connection: ${effective}<br>
+
+        Estimated downlink: ${downlink} Mbps<br>
+
+        Browser-reported RTT: ${rtt} ms
+
+    `;
+
+    provider.textContent =
+        "ISP name: Not yet identified. Manual provider confirmation will be added.";
+
+};
             displayHistory();
 
             status.textContent =
