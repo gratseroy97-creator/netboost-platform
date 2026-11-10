@@ -290,50 +290,193 @@ footer {
 
 </footer>
 
-<script>
+<script type="module">
 
-function startTest() {
+window.startTest = async function() {
 
     const button = document.getElementById("testButton");
-
     const status = document.getElementById("testStatus");
 
     button.disabled = true;
 
-    status.textContent =
-    "Speed testing engine is being prepared for the next development stage.";
+    try {
 
-    setTimeout(() => {
+        status.textContent = "Loading speed testing engine...";
+
+        const { default: SpeedTest } = await import(
+            "https://cdn.jsdelivr.net/npm/@cloudflare/speedtest@1.16.0/+esm"
+        );
+
+        status.textContent = "Testing your connection...";
+
+        const test = new SpeedTest({
+
+            measurements: [
+
+                { type: "latency", numPackets: 5 },
+
+                { type: "download", bytes: 1000000, count: 3 },
+
+                { type: "upload", bytes: 1000000, count: 3 }
+
+            ],
+
+            abortTestDuration: 45000,
+
+            abortRequestDuration: 15000
+
+        });
+
+        test.onRunningChange = running => {
+
+            status.textContent = running
+                ? "Measuring your internet connection..."
+                : "Processing results...";
+
+        };
+
+        test.onError = (error) => {
+
+            console.warn("Speed test warning:", error);
+
+        };
+
+        test.onFinish = results => {
+
+            const download =
+                results.getDownloadBandwidth();
+
+            const upload =
+                results.getUploadBandwidth();
+
+            const ping =
+                results.getUnloadedLatency();
+
+            const jitter =
+                results.getUnloadedJitter();
+
+            if (!download || !upload || ping == null) {
+
+                status.textContent =
+                    "Incomplete test. Please try again.";
+
+                button.disabled = false;
+
+                return;
+
+            }
+
+            const downMbps =
+                (download / 1000000).toFixed(2);
+
+            const upMbps =
+                (upload / 1000000).toFixed(2);
+
+            const pingMs =
+                ping.toFixed(0);
+
+            document.getElementById("download").textContent =
+                downMbps;
+
+            document.getElementById("upload").textContent =
+                upMbps;
+
+            document.getElementById("ping").textContent =
+                pingMs;
+
+            const record = {
+
+                date: new Date().toLocaleString(),
+
+                download: downMbps,
+
+                upload: upMbps,
+
+                ping: pingMs,
+
+                jitter: jitter == null
+                    ? "N/A"
+                    : jitter.toFixed(2)
+
+            };
+
+            let history = JSON.parse(
+                localStorage.getItem("netboost_history") || "[]"
+            );
+
+            history.unshift(record);
+
+            history = history.slice(0, 10);
+
+            localStorage.setItem(
+                "netboost_history",
+                JSON.stringify(history)
+            );
+
+            displayHistory();
+
+            status.textContent =
+                "Speed test completed successfully!";
+
+            button.disabled = false;
+
+        };
+
+        test.play();
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+            "Unable to complete test. Check your internet and try again.";
 
         button.disabled = false;
 
-        status.textContent =
-        "Dashboard ready. Real speed testing will be activated in the next stage.";
+    }
 
-    }, 1500);
+};
+
+
+function displayHistory() {
+
+    const history = JSON.parse(
+        localStorage.getItem("netboost_history") || "[]"
+    );
+
+    const element = document.getElementById("history");
+
+    if (history.length === 0) {
+
+        element.textContent = "No tests recorded yet.";
+
+        return;
+
+    }
+
+    element.innerHTML = history.map(item => `
+
+        <p style="margin-bottom:12px">
+
+        📅 ${item.date}<br>
+
+        ⬇ Download: ${item.download} Mbps<br>
+
+        ⬆ Upload: ${item.upload} Mbps<br>
+
+        📶 Ping: ${item.ping} ms<br>
+
+        Jitter: ${item.jitter} ms
+
+        </p>
+
+    `).join("");
 
 }
 
-const connection =
-navigator.connection ||
-navigator.mozConnection ||
-navigator.webkitConnection;
 
-if (connection) {
+displayHistory();
 
-    document.getElementById("network").textContent =
-    "Connection type: " +
-    (connection.type || "Not provided") +
-    " | Effective type: " +
-    (connection.effectiveType || "Unknown");
-
-} else {
-
-    document.getElementById("network").textContent =
-    "Your browser does not expose detailed network information. " +
-    "Wi-Fi and mobile network detection may be limited.";
-
-}
 
 </script>
 
